@@ -15,9 +15,9 @@ app.use(express.json())
 app.use(express.static("public"))
 
 // routes
-app.get('/', (req, res) => {
-    res.json({ message:  "Rota teste" })
-})
+import { router as authRouter } from './routes/authRoutes.js'
+
+app.use('/api/auth', authRouter)
 
 // conn
 import { main } from './db/conn.js'
