@@ -6,4 +6,4 @@ export const router = Router()
 import { UserController } from "../controllers/userController.js";
 
 // routes
-router.post("/register")
+router.post("/register", UserController.register)
