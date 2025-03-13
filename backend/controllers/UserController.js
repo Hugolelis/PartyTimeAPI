@@ -54,4 +54,41 @@ export class UserController {
             res.status(400).json({ message: err })
         }
     }
+
+    static async login(req, res) {
+        const { email, password } = req.body
+
+        // check data required 
+        if(!email || !password) {
+            return res.status(400).json({ message: 'Por favor, preencha todos os campos!' })
+        }
+
+        // check if user exist
+        const user = await User.findOne({ email: email })
+
+        if(!user) {
+            return res.status(400).json({ message: 'Usuário não cadastrado!' })
+        }
+
+        // check if password match
+        const checkPassword = await bcrypt.compare(password, user.password)
+
+        if(!checkPassword) {
+            return res.status(400).json({ message: 'Senha inválida!' })
+        }
+        
+        try {
+        // create token
+        const token = jwt.sign({
+            name: user.name,
+            id: user._id
+        }, process.env.TOKEN_SECRET)
+
+        // return token
+        res.status(200).json({ error: null, message: "Você realizou o login com sucesso", token })
+
+        } catch(err) {
+            res.status(400).json({ message: e })
+        }
+    }
 }
