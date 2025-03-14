@@ -106,6 +106,7 @@ export class UserController {
     }
 
     static async updateUser(req, res) {
-
+        const token = req.header("auth-token")
+        const user = await getUserByToken()
     }
 }
