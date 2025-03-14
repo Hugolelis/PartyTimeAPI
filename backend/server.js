@@ -14,8 +14,10 @@ app.use(express.static("public"))
 
 // routes
 import { router as authRouter } from './routes/authRoutes.js'
+import { router as userRouter } from './routes/userRouter.js'
 
 app.use('/api/auth', authRouter)
+app.use('/api/user', userRouter)
 
 // conn
 import { main } from './db/conn.js'

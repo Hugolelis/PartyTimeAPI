@@ -91,4 +91,21 @@ export class UserController {
             res.status(400).json({ message: e })
         }
     }
+
+    static async getUser(req, res) {
+        const { id } = req.params
+
+        // verify user
+        try {
+            const user = await User.findOne({ _id: id }, { password: 0, _id: 0})
+
+            res.json({ error: null, user })
+        } catch(err) {
+            return res.status(400).json({ message: 'Usuário não encontrado!' })
+        }
+    }
+
+    static async updateUser(req, res) {
+
+    }
 }
