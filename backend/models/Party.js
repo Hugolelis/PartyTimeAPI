@@ -9,4 +9,4 @@ const partySchema = new mongoose.Schema({
     userId: { type: mongoose.ObjectId }
 })
 
-export const party = mongoose.model('Party', partySchema)
+export const Party = mongoose.model('Party', partySchema)

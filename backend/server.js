@@ -14,10 +14,12 @@ app.use(express.static("public"))
 
 // routes
 import { router as authRouter } from './routes/authRoutes.js'
-import { router as userRouter } from './routes/userRouter.js'
+import { router as userRouter } from './routes/userRoutes.js'
+import { router as partyRouter } from './routes/partyRoutes.js'
 
 app.use('/api/auth', authRouter)
 app.use('/api/user', userRouter)
+app.use('/api/party', partyRouter)
 
 // conn
 import { main } from './db/conn.js'
