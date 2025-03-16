@@ -5,6 +5,9 @@ import jwt from 'jsonwebtoken'
 // models
 import { User } from '../models/user.js'
 
+// helpers
+import { getUserByToken } from '../helpers/get-user-by-token.js'
+
 export class UserController {
     static async register(req, res) {
         const { name, email, password, confirmPassword } = req.body
@@ -106,7 +109,53 @@ export class UserController {
     }
 
     static async updateUser(req, res) {
+        // get user by token
         const token = req.header("auth-token")
-        const user = await getUserByToken()
+        const user = await getUserByToken(token)
+
+        const { id } = req.params
+        const { password, confirmPassword, name, email } = req.body
+
+        //verify if user exist
+        if (!user) {
+            return res.status(401).json({ message: "Usuário não encontrado!" })
+        }
+
+        const userId = user._id.toString()
+
+        // verify req ids
+        if(userId != id ) {
+            return res.status(401).json({ message: "Acesso negado!" })
+        }
+
+        // check datas required
+        if(!name || !email) {
+            return res.status(401).json({ message: "Os campos nome e email são obrigátorios!" })
+        }
+
+        // create user obj
+        const updateData = {
+            name,
+            email
+        }
+
+        // chekc if password match
+        if(password != confirmPassword) {
+            return res.json({ message: "As senhas são diferentes!" })
+        } else if (password == confirmPassword && password != null) {
+            const salt = await bcrypt.genSalt(12)
+            const passwordHash = await bcrypt.hash(password, salt)
+
+            updateData.password = passwordHash
+        }
+
+        try {
+            // return update data
+            const updatedUser = await User.findOneAndUpdate({_id: userId}, { $set: updateData }, {new: true})
+            res.status(200).json({error: null, message: "Usuário atualizado com sucesso!", data: updatedUser})
+
+        } catch(err) {
+            res.status(400).json({ message: err})
+        }
     }
 }
