@@ -94,6 +94,22 @@ export class partyController {
     }
 
     static async getUserParty(req, res) {
+        try {
+            const token = req.header('auth-token')
+            const user = await getUserByToken(token)
+            const userId = user._id.toString()
+            const partyId = req.params.id
 
+            const party = await Party.findOne({ _id: partyId, userId: userId})
+
+            res.status(200).json({ error: null, message: party})
+
+        } catch(err) {
+            res.status(400).json({ message: err })
+        }
+    }
+
+    static async getPartyPublicOrPrivate(req, res) {
+        
     }
 }

@@ -17,4 +17,4 @@ import { checkToken } from "../helpers/check-token.js";
 router.post('/create', checkToken, upload.fields([{ name: "photos" }]),  partyController.createParty)
 router.get('/parties', partyController.getParties)
 router.get('/parties/user', checkToken, partyController.getAllUserParties)
-router.get('/parties/user/party', checkToken, partyController.getAllUserParties)
+router.get('/parties/userParty/:id', checkToken, partyController.getUserParty)
