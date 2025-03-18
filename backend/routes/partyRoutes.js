@@ -18,3 +18,5 @@ router.post('/create', checkToken, upload.fields([{ name: "photos" }]),  partyCo
 router.get('/parties', partyController.getParties)
 router.get('/parties/user', checkToken, partyController.getAllUserParties)
 router.get('/parties/userParty/:id', checkToken, partyController.getUserParty)
+router.get('/:id', partyController.getPartyPublicOrPrivate)
+router.delete('/', checkToken, partyController.deleteParty)

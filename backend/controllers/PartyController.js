@@ -110,6 +110,50 @@ export class partyController {
     }
 
     static async getPartyPublicOrPrivate(req, res) {
-        
+        try {
+            const { id } = req.params
+            const party = await Party.findById(id)
+
+            const token = req.header('auth-token')
+            const user = await getUserByToken(token)
+
+            const userId = user._id.toString()
+            const userPartyId = party.userId._id.toString()
+            
+            if(party.privacy === false) {
+                return res.status(200).json({ error: null, message: party})
+            } else {
+                // check if user id is equal party user id
+                if(userId == userPartyId) {
+                    res.status(200).json({ error: null, message: party})
+                } else {
+                    res.status(400).json({ message: 'Apenas donos de festas privada tem acesso a festa!'})
+                }
+            }
+
+        } catch(err) {
+            return res.status(400).json({ message: 'Esse evento não existe!' })
+        }
+    }
+
+    static async deleteParty(req, res) {
+        const token = req.header('auth-token')
+        const user = await getUserByToken(token)
+
+        const userId = user._id.toString()
+        const partyId = req.body.id
+
+        const party = await Party.findById(partyId)
+
+        try {
+
+            if(userId == party.userId) {
+                await Party.deleteOne({ _id: partyId, userId: userId })
+                res.status(200).json({ error: null, message: 'Evento removido com sucesso!' })
+            }
+            
+        } catch(err) {
+            res.status(400).json({ message: err})
+        }
     }
 }
