@@ -68,6 +68,82 @@ export class partyController {
         
     }
 
+    static async deleteParty(req, res) {
+        const token = req.header('auth-token')
+        const user = await getUserByToken(token)
+
+        const userId = user._id.toString()
+        const partyId = req.body.id
+
+        const party = await Party.findById(partyId)
+
+        try {
+
+            if(userId == party.userId) {
+                await Party.deleteOne({ _id: partyId, userId: userId })
+                res.status(200).json({ error: null, message: 'Evento removido com sucesso!' })
+            }
+            
+        } catch(err) {
+            res.status(400).json({ message: err})
+        }
+    }
+
+    static async updateParty(req, res) { 
+        const { title, description, partyDate, privacy } = req.body
+        const partyId = req.body.id
+        const partyUserId = req.body.userId
+
+        let files = []
+
+        if(req.files) {
+            files = req.files.photos
+        }
+
+        // validations
+        if(!title || !description || !partyDate) {
+            return res.status(400).json({ message: "Preencha pelo menos titulo, descrição e data!" })
+        }
+
+        // verify user
+        const token = req.header('auth-token')
+        const userByToken = await getUserByToken(token)
+        const userId = userByToken._id.toString()
+
+        if(userId !== partyUserId) {
+            return res.status(400).json({ message: 'Acesso negado!' })
+        }
+
+        // build party obj
+        const party = {
+            id: partyId,
+            title,
+            description,
+            partyDate,
+            privacy,
+            userId
+        }
+
+        let photos = []
+
+        // create photos array with path
+        if(files && files.lenght > 0) {
+            files.forEach((photo, i) => {
+                photos[i] = photo.path
+            });
+
+            party.photos = photos 
+        }
+
+        try {
+            const updatedParty = await Party.findOneAndUpdate({ _id: partyId, userId: userId }, { $set: party}, { new: true})
+            res.status(200).json({ error: null, message: "Evento atualizado com sucesso!", data: updatedParty})
+            
+        } catch(err) {
+            res.status(400).json({ message: err})
+        } 
+    }
+
     static async getParties(req, res) { 
         const parties = await Party.find({ privacy: false }).sort([[ 'partyDate', - 1]])
 
@@ -133,27 +209,6 @@ export class partyController {
 
         } catch(err) {
             return res.status(400).json({ message: 'Esse evento não existe!' })
-        }
-    }
-
-    static async deleteParty(req, res) {
-        const token = req.header('auth-token')
-        const user = await getUserByToken(token)
-
-        const userId = user._id.toString()
-        const partyId = req.body.id
-
-        const party = await Party.findById(partyId)
-
-        try {
-
-            if(userId == party.userId) {
-                await Party.deleteOne({ _id: partyId, userId: userId })
-                res.status(200).json({ error: null, message: 'Evento removido com sucesso!' })
-            }
-            
-        } catch(err) {
-            res.status(400).json({ message: err})
         }
     }
 }
